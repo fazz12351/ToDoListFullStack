@@ -35,6 +35,14 @@ app.post("/", function(req, res){
   }
 });
 
+
+app.post("/remove",(req,res)=>{
+  const delIndex=parseInt(req.body.click)
+  items.splice(delIndex,1)
+  res.redirect("/")
+
+})
+
 app.get("/work", function(req,res){
   res.render("list", {listTitle: "Work List", newListItems: workItems});
 });
