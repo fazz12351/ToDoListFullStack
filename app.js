@@ -52,5 +52,5 @@ app.get("/about", function(req, res){
 });
 
 app.listen(3000, function() {
-  console.log("Hello new branch");
+  console.log("server running on port 3000");
 });
