@@ -46,7 +46,7 @@ app.post("/", function (req, res) {
   })
   newListItem.save()
 
-  items.push(item);
+  items.push(newListItem);
   res.redirect("/");
 
 });
@@ -54,7 +54,10 @@ app.post("/", function (req, res) {
 
 app.post("/remove", (req, res) => {
   let delIndex = parseInt(req.body.click)
-  listModel.deleteOne({"task":items[delIndex]}).then(function(){
+  let currentDelObject=items[delIndex].task
+  console.log(currentDelObject)
+
+  listModel.deleteOne({"task":currentDelObject}).then(function(){
     console.log("succesfully deleted")
   })
   items.splice(delIndex, 1)
@@ -83,13 +86,12 @@ app.listen(3000, function() {
 function pushDataToArr(){
   listModel.find({}).then(function(res){
     for(let i=0;i<res.length;i++){
-      items.push(res[i].task)
+      items.push(res[i])
     }
   })
 
 }
-
-
-
 pushDataToArr()
+
+console.log(items)
 
