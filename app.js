@@ -4,13 +4,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const date = require(__dirname + "/date.js");
 const mongoose = require("mongoose")
+const day = date.getDate();
 
 mongoose.connect('mongodb://127.0.0.1:27017/myList');
 
 const listSchema = new mongoose.Schema({
   task: {
-    type: String,
-    min: 0
+    type: String
   }
 })
 const customSchema = new mongoose.Schema({
@@ -33,10 +33,19 @@ app.use(express.static("public"));
 const defualtItems = [];
 const workItems = [];
 
+
+
+
+
+
+
+
+
+
+
+
+
 app.get("/", function (req, res) {
-
-  const day = date.getDate();
-
   res.render("list", {
     listTitle: day,
     newListItems: defualtItems
@@ -45,33 +54,102 @@ app.get("/", function (req, res) {
 });
 
 app.post("/", function (req, res) {
-  const item = req.body.newItem;
-  const newListItem = new listModel({
-    task: item
-  })
-  newListItem.save()
+  const clientRequest = req.body
 
-  defualtItems.push(newListItem);
-  res.redirect("/");
+  const appendNewItem = new listModel({
+    task: clientRequest.newItem
+
+  })
+
+  if (clientRequest.Header == day) {
+    appendNewItem.save()
+    defualtItems.push(appendNewItem)
+    res.redirect("/")
+
+
+  } else {
+
+    customModel.find({
+      name: clientRequest.Header
+    }).then((result) => {
+      let allItems = []
+      for (let i = 0; i < result[0].items.length; i++) {
+        allItems.push(result[0].items[i])
+      }
+      allItems.push(appendNewItem)
+      customModel.findOneAndUpdate({
+        name: clientRequest.Header
+      }, {
+        items: allItems
+      }).then(function (responce) {
+        res.redirect("/" + clientRequest.Header)
+
+      })
+
+
+    })
+  }
 
 });
 
 
+
+
+
+
+
+
+
+
+
+
+
 app.post("/remove", (req, res) => {
   let delIndex = parseInt(req.body.click)
-  let currentDelObject = defualtItems[delIndex].task
-  console.log(currentDelObject)
+  const Header = req.body.removeTitle[0]
 
-  listModel.deleteOne({
-    "task": currentDelObject
-  }).then(function () {
-    console.log("succesfully deleted")
-  })
-  defualtItems.splice(delIndex, 1)
+  if (Header != day) {
+    customModel.find({
+      name: Header
+    }).then(function (result) {
+      let allItems = []
+      allItems = result[0].items
+      allItems.splice(delIndex, 1)
+      customModel.findOneAndUpdate({
+        name: Header
+      }, {
+        items: allItems
+      }).then(function (responce) {
+        console.log("done")
+      })
+    })
+    res.redirect("/" +Header)
 
-  res.redirect("/")
+
+  } else {
+    let currentDelObject = defualtItems[delIndex].task
+    listModel.deleteOne({
+      "task": currentDelObject
+    }).then(function () {
+
+    })
+    defualtItems.splice(delIndex, 1)
+    res.redirect("/")
+  }
+
+
+
+
 
 })
+
+
+
+
+
+
+
+
 
 app.get("/work", function (req, res) {
   res.render("list", {
@@ -80,9 +158,32 @@ app.get("/work", function (req, res) {
   });
 });
 
+
+
+
+
+
+
+
+
+
+
 app.get("/about", function (req, res) {
   res.render("about");
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.get("/:customList", function (req, res) {
@@ -92,7 +193,7 @@ app.get("/:customList", function (req, res) {
     "name": currentList
   }).then(function (responce) {
     const data = responce[0]
-    console.log(res)
+
     if (responce.length > 0) {
       res.render("list", {
         listTitle: data.name,
@@ -101,7 +202,7 @@ app.get("/:customList", function (req, res) {
     } else {
       const item = new customModel({
         name: currentList,
-        items: defualtItems
+        items: []
       })
       item.save()
       res.redirect("/" + currentList + "")

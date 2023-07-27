@@ -5,9 +5,11 @@
 </div>
 
 <div class="box">
+
   <% for (let i=0; i<newListItems.length; i++) { %>
   <form action="/remove" method="post">
     <div class="item">
+      <input name="removeTitle" style="display: none;" type="text" value="<%=listTitle%>">
       <input value="<%=i%>"  name="click" class="checkBoxClass" type="checkbox" onChange="this.form.submit()">
       <p name="score"><%=  newListItems[i].task  %></p>
     </div>
@@ -17,6 +19,7 @@
 
   <form class="item" action="/" method="post">
     <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
+    <input style="display: none;" value="<%=listTitle%>"  name="Header" class="checkBoxClass" type="text">
     <button type="submit" name="list">+</button>
   </form>
 </div>
